@@ -8,6 +8,7 @@ url_recognize = 'https://api.kairos.com/recognize'
 url_gallery_list = 'https://api.kairos.com/gallery/list_all'
 url_gallery_view = 'https://api.kairos.com/gallery/view'
 url_view_subject = 'https://api.kairos.com/gallery/view_subject'
+url_gallery_remove = 'https://api.kairos.com/gallery/remove'
 
 # I clearly don't quite understand how HTTP works, but this won't work without the triple quotes.
 gallery_name = """
@@ -40,12 +41,13 @@ headers = {
   'app_key': 'd3a579a339de2805b54e53dcd72ee40c'
 }
 
-files = {'image': open('test1.jpg', 'rb')}
+files = {'image': open('test2.jpg', 'rb')}
 
 
 #enrollment code
 # r = requests.post(url_enroll, data=enroll_vals, headers=headers, files=files)
-# print(r.text)
+# parsed = json.loads(r.content)
+# print( json.dumps(parsed, indent=4, sort_keys=True))
 
 # this does work. content is byte format.
 # parsed = json.loads(r.content)
@@ -56,8 +58,8 @@ files = {'image': open('test1.jpg', 'rb')}
 # print(parsed["face_id"])
 
 # code to see what galleries exist
-# gal_list = requests.post(url_gallery_list,headers = headers)
-# print(gal_list.text)
+gal_list = requests.post(url_gallery_list,headers = headers)
+print(gal_list.text)
 
 # code to list faces in a gallery
 # face_list = requests.post(url_gallery_view, data=gallery_name,headers=headers)
@@ -69,7 +71,11 @@ files = {'image': open('test1.jpg', 'rb')}
 # print( json.dumps(parsed, indent=4, sort_keys=True))
 # print(subject.text)
 
-# 
-subject = requests.post(url_recognize,data = recognize, headers=headers,files=files)
-parsed = json.loads(subject.content)
-print( json.dumps(parsed, indent=4, sort_keys=True))
+# code to delete gallery
+# rem = requests.post(url_gallery_remove, data=gallery_name,headers=headers)
+# print(rem.text)
+
+# code to recognize a person
+# subject = requests.post(url_recognize,data = recognize, headers=headers,files=files)
+# parsed = json.loads(subject.content)
+# print( json.dumps(parsed, indent=4, sort_keys=True))
