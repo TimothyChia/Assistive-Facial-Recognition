@@ -1,0 +1,142 @@
+{
+    "images": [
+        {
+            "candidates": [
+                {
+                    "confidence": 0.8928325,
+                    "enrollment_timestamp": "1519778775360",
+                    "face_id": "d3279837c32c45af93b",
+                    "subject_id": "Timothy Chia"
+                },
+                {
+                    "confidence": 0.88551223,
+                    "enrollment_timestamp": "1519778744506",
+                    "face_id": "a91c3d8f3f8c44c9887",
+                    "subject_id": "Timothy Chia"
+                },
+                {
+                    "confidence": 0.8829525,
+                    "enrollment_timestamp": "1519778778765",
+                    "face_id": "a465e45b7b20460a9e6",
+                    "subject_id": "Timothy Chia"
+                },
+                {
+                    "confidence": 0.87742853,
+                    "enrollment_timestamp": "1519778772307",
+                    "face_id": "1d6a7e17b0034db3b6d",
+                    "subject_id": "Timothy Chia"
+                },
+                {
+                    "confidence": 0.85873413,
+                    "enrollment_timestamp": "1519778762349",
+                    "face_id": "93019b6397ae4ee7bb3",
+                    "subject_id": "Timothy Chia"
+                },
+                {
+                    "confidence": 0.83064234,
+                    "enrollment_timestamp": "1519778747850",
+                    "face_id": "a267b6d0faef4e53ad9",
+                    "subject_id": "Timothy Chia"
+                },
+                {
+                    "confidence": 0.7694739,
+                    "enrollment_timestamp": "1519778781754",
+                    "face_id": "a58ba3951550436cbc8",
+                    "subject_id": "Timothy Chia"
+                },
+                {
+                    "confidence": 0.7441232,
+                    "enrollment_timestamp": "1519778766277",
+                    "face_id": "7db79da3b31647139cc",
+                    "subject_id": "Timothy Chia"
+                },
+                {
+                    "confidence": 0.6686426,
+                    "enrollment_timestamp": "1519778784986",
+                    "face_id": "04afc255eb124cc2a63",
+                    "subject_id": "Timothy Chia"
+                }
+            ],
+            "transaction": {
+                "confidence": 0.8928325,
+                "enrollment_timestamp": "1519778775360",
+                "eyeDistance": 460,
+                "face_id": "d3279837c32c45af93b",
+                "gallery_name": "People",
+                "height": 1052,
+                "pitch": -9,
+                "quality": 0.72612,
+                "roll": 0,
+                "status": "success",
+                "subject_id": "Timothy Chia",
+                "topLeftX": 751,
+                "topLeftY": 1376,
+                "width": 1052,
+                "yaw": 4
+            }
+        }
+    ]
+}
+
+
+For a testing image with no matching image in the database:
+{
+    "images": [
+        {
+            "transaction": {
+                "eyeDistance": 212,
+                "face_id": 1,
+                "gallery_name": "Office",
+                "height": 432,
+                "message": "no match found",
+                "pitch": -17,
+                "quality": -0.32549,
+                "roll": -8,
+                "status": "failure",
+                "topLeftX": 28,
+                "topLeftY": 276,
+                "width": 431,
+                "yaw": 27
+            }
+        }
+    ]
+}
+
+For a testing image with exactly one matching image in the database:
+{
+    "images": [
+        {
+            "candidates": [
+                {
+                    "confidence": 0.9950643,
+                    "enrollment_timestamp": "1519777937521",
+                    "face_id": "bf196a521f334983a6f",
+                    "subject_id": "Michael-Scott"
+                },
+                {
+                    "confidence": 0.9950643,
+                    "enrollment_timestamp": "1519777979899",
+                    "face_id": "2c58f6e641594eb28ad",
+                    "subject_id": "Michael-Scott"
+                }
+            ],
+            "transaction": {
+                "confidence": 0.9950643,
+                "enrollment_timestamp": "1519777937521",
+                "eyeDistance": 420,
+                "face_id": "bf196a521f334983a6f",
+                "gallery_name": "Office",
+                "height": 951,
+                "pitch": -11,
+                "quality": 1.05801,
+                "roll": 4,
+                "status": "success",
+                "subject_id": "Michael-Scott",
+                "topLeftX": 894,
+                "topLeftY": 1353,
+                "width": 951,
+                "yaw": -5
+            }
+        }
+    ]
+}

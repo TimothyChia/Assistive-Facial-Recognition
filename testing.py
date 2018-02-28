@@ -19,7 +19,8 @@ headers = {
 
 # this one works without
 data_recognize =  {
-    "gallery_name": "People"
+    "gallery_name": "People",
+    "threshold": "0.2"
   }
 
 # I clearly don't quite understand how HTTP works, but this won't work without the triple quotes.
@@ -36,14 +37,26 @@ with os.scandir('.\Testing Set') as it:
         if dir.is_dir():
             subject_id_list_true.append(dir.name)
 
-subject_id_recognized = {}
+subject_recognized_data = {}
 # recognize all images for each person
 # not sure what would happen if there were multiple test images in a person's folder. check later?
 for subject_id in subject_id_list_true:
     for testing_img_path in os.scandir( os.path.join( '.\Testing Set',subject_id  ) ):
         with open(testing_img_path.path, 'rb') as f:
             test_img = {'image': f }
-            subject_id_recognized[subject_id] = requests.post(url_recognize,data = data_recognize, headers=headers,files=test_img)
+            subject_recognized_data[subject_id] = requests.post(url_recognize,data = data_recognize, headers=headers,files=test_img)
 
-for subject in subject_id_recognized:
-    print_json(subject_id_recognized[subject])
+print_json(subject_recognized_data["Timothy Chia"])
+
+
+
+# recognized_confidence = {}
+# recognized_subject_id = {}
+# for subject_id_true in subject_recognized_data:
+#     # print_json(subject_id_recognized[subject])
+#     transaction = subject_recognized_data[subject_id_true].json()["images"][0]["transaction"]
+#     recognized_confidence[subject_id_true] = transaction.get("confidence",0) # default value of 0 
+#     recognized_subject_id[subject_id_true] = transaction.get("subject_id","no match")
+
+# print(recognized_confidence)
+# print(recognized_subject_id)

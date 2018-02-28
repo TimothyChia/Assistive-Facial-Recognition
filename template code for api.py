@@ -10,6 +10,12 @@ url_gallery_view = 'https://api.kairos.com/gallery/view'
 url_view_subject = 'https://api.kairos.com/gallery/view_subject'
 url_gallery_remove = 'https://api.kairos.com/gallery/remove'
 
+
+
+def print_json(r):
+    parsed = json.loads(r.content)
+    print( json.dumps(parsed, indent=4, sort_keys=True))
+
 # I clearly don't quite understand how HTTP works, but this won't work without the triple quotes.
 gallery_name = """
   {
@@ -58,8 +64,8 @@ files = {'image': open('test2.jpg', 'rb')}
 # print(parsed["face_id"])
 
 # code to see what galleries exist
-gal_list = requests.post(url_gallery_list,headers = headers)
-print(gal_list.text)
+# gal_list = requests.post(url_gallery_list,headers = headers)
+# print(gal_list.text)
 
 # code to list faces in a gallery
 # face_list = requests.post(url_gallery_view, data=gallery_name,headers=headers)
@@ -76,6 +82,8 @@ print(gal_list.text)
 # print(rem.text)
 
 # code to recognize a person
-# subject = requests.post(url_recognize,data = recognize, headers=headers,files=files)
-# parsed = json.loads(subject.content)
-# print( json.dumps(parsed, indent=4, sort_keys=True))
+subject = requests.post(url_recognize,data = recognize, headers=headers,files=files)
+print_json(subject)
+# print(subject.json()["images"][0]["transaction"])
+# print(subject.json()["images"]["transaction"]["confidence"])
+#["subject_id"]
