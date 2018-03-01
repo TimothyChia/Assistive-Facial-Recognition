@@ -1,6 +1,9 @@
 import requests
 import json
 import os
+import csv
+
+
 
 url_recognize = 'https://api.kairos.com/recognize'
 url_gallery_view = 'https://api.kairos.com/gallery/view'
@@ -46,17 +49,25 @@ for subject_id in subject_id_list_true:
             test_img = {'image': f }
             subject_recognized_data[subject_id] = requests.post(url_recognize,data = data_recognize, headers=headers,files=test_img)
 
-print_json(subject_recognized_data["Timothy Chia"])
+# print_json(subject_recognized_data["Timothy Chia"])
+
+# generate top match and confidence value for each test image. dict keys are the true subject_id.
+recognized_confidence = {}
+recognized_subject_id = {}
+for subject_id_true in subject_recognized_data:
+    # print_json(subject_id_recognized[subject])
+    transaction = subject_recognized_data[subject_id_true].json()["images"][0]["transaction"]
+    recognized_confidence[subject_id_true] = transaction.get("confidence",0) # default value of 0 
+    recognized_subject_id[subject_id_true] = transaction.get("subject_id","no match")
 
 
-
-# recognized_confidence = {}
-# recognized_subject_id = {}
-# for subject_id_true in subject_recognized_data:
-#     # print_json(subject_id_recognized[subject])
-#     transaction = subject_recognized_data[subject_id_true].json()["images"][0]["transaction"]
-#     recognized_confidence[subject_id_true] = transaction.get("confidence",0) # default value of 0 
-#     recognized_subject_id[subject_id_true] = transaction.get("subject_id","no match")
+with open('testing_results.csv', 'w', newline='') as csvfile:
+    spamwriter = csv.writer(csvfile, delimiter=' ',
+                            quotechar=',', quoting=csv.QUOTE_MINIMAL)
+    for subject_id_true in subject_recognized_data:
+        # spamwriter.writerow([subject_id_true]+ [recognized_subject_id[subject_id_true] ] + [recognized_confidence[subject_id_true]])
+        spamwriter.writerow([subject_id_true, recognized_subject_id[subject_id_true] , recognized_confidence[subject_id_true]])
+        
 
 # print(recognized_confidence)
 # print(recognized_subject_id)
