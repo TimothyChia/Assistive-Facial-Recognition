@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import time
 
 url_enroll = 'https://api.kairos.com/enroll'
 url_gallery_view = 'https://api.kairos.com/gallery/view'
@@ -49,6 +50,7 @@ for subject_id in subject_id_list:
             training_img = {'image': f }
             enroll_vals['subject_id'] = subject_id
             #enrollment code
+            time.sleep(2) # due to free API usage, 
             r = requests.post(url_enroll, data=enroll_vals, headers=headers, files=training_img)
 
 

@@ -1,0 +1,10 @@
+test 6 passes, but test 3-5 trigger this message instead.
+
+{
+    "Errors": [
+        {
+            "ErrCode": 5002,
+            "Message": "no faces found in the image"
+        }
+    ]
+}

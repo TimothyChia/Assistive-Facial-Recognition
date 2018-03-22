@@ -47,13 +47,14 @@ headers = {
   'app_key': 'd3a579a339de2805b54e53dcd72ee40c'
 }
 
-files = {'image': open('test2.jpg', 'rb')}
+#test 6 passes. test 3-5 do not.  Returns 
+files = {'image': open('test4.jpg', 'rb')}
 
 
 #enrollment code
-# r = requests.post(url_enroll, data=enroll_vals, headers=headers, files=files)
-# parsed = json.loads(r.content)
-# print( json.dumps(parsed, indent=4, sort_keys=True))
+r = requests.post(url_enroll, data=enroll_vals, headers=headers, files=files)
+parsed = json.loads(r.content)
+print( json.dumps(parsed, indent=4, sort_keys=True))
 
 # this does work. content is byte format.
 # parsed = json.loads(r.content)
@@ -82,8 +83,8 @@ files = {'image': open('test2.jpg', 'rb')}
 # print(rem.text)
 
 # code to recognize a person
-subject = requests.post(url_recognize,data = recognize, headers=headers,files=files)
-print_json(subject)
+# subject = requests.post(url_recognize,data = recognize, headers=headers,files=files)
+# print_json(subject)
 # print(subject.json()["images"][0]["transaction"])
 # print(subject.json()["images"]["transaction"]["confidence"])
 #["subject_id"]
