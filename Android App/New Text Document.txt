@@ -1,0 +1,1 @@
+the files fromAndroidCamera etc were taken directly from the phone storage. the other image is converted from a b64 string copy pasted using the android studio debugger from the json object I put in my POST request

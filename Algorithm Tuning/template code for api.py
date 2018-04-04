@@ -19,12 +19,13 @@ def print_json(r):
 # I clearly don't quite understand how HTTP works, but this won't work without the triple quotes.
 gallery_name = """
   {
-    "gallery_name": "Office"
+    "gallery_name": "People"
   }
 """
 # this one works without
 recognize =  {
-    "gallery_name": "Office"
+    "gallery_name": "People",
+    "threshold":"0"
   }
 
 # this one works with the triple quotes
@@ -48,13 +49,13 @@ headers = {
 }
 
 #test 6 passes. test 3-5 do not.  Returns 
-files = {'image': open('test4.jpg', 'rb')}
+files = {'image': open('fromAndroidCamera.jpg', 'rb')}
 
 
 #enrollment code
-r = requests.post(url_enroll, data=enroll_vals, headers=headers, files=files)
-parsed = json.loads(r.content)
-print( json.dumps(parsed, indent=4, sort_keys=True))
+# r = requests.post(url_enroll, data=enroll_vals, headers=headers, files=files)
+# parsed = json.loads(r.content)
+# print( json.dumps(parsed, indent=4, sort_keys=True))
 
 # this does work. content is byte format.
 # parsed = json.loads(r.content)
@@ -83,8 +84,8 @@ print( json.dumps(parsed, indent=4, sort_keys=True))
 # print(rem.text)
 
 # code to recognize a person
-# subject = requests.post(url_recognize,data = recognize, headers=headers,files=files)
-# print_json(subject)
+subject = requests.post(url_recognize,data = recognize, headers=headers,files=files)
+print_json(subject)
 # print(subject.json()["images"][0]["transaction"])
 # print(subject.json()["images"]["transaction"]["confidence"])
-#["subject_id"]
+# ["subject_id"]
