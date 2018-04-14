@@ -49,7 +49,7 @@ headers = {
 }
 
 #test 6 passes. test 3-5 do not.  Returns 
-files = {'image': open('fromAndroidCamera.jpg', 'rb')}
+# files = {'image': open('fromAndroidCamera.jpg', 'rb')}
 
 
 #enrollment code
@@ -70,8 +70,9 @@ files = {'image': open('fromAndroidCamera.jpg', 'rb')}
 # print(gal_list.text)
 
 # code to list faces in a gallery
-# face_list = requests.post(url_gallery_view, data=gallery_name,headers=headers)
+face_list = requests.post(url_gallery_view, data=gallery_name,headers=headers)
 # print(face_list.text)
+print_json(face_list)
 
 # code to view something about a subject?
 # subject = requests.post(url_view_subject,data = view_subject, headers=headers)
@@ -84,8 +85,8 @@ files = {'image': open('fromAndroidCamera.jpg', 'rb')}
 # print(rem.text)
 
 # code to recognize a person
-subject = requests.post(url_recognize,data = recognize, headers=headers,files=files)
-print_json(subject)
+# subject = requests.post(url_recognize,data = recognize, headers=headers,files=files)
+# print_json(subject)
 # print(subject.json()["images"][0]["transaction"])
 # print(subject.json()["images"]["transaction"]["confidence"])
 # ["subject_id"]

@@ -80,6 +80,7 @@
 
 
 For a testing image with no matching image in the database:
+Revision 4/9/2018: Actually, I think this is a result of using a threshold of 0.6. If you call with 0 it should always return some face.
 {
     "images": [
         {
@@ -140,3 +141,6 @@ For a testing image with exactly one matching image in the database:
         }
     ]
 }
+
+For a testing image with no face (from phone debug):
+{"Errors":[{"ErrCode":5002,"Message":"no faces found in the image"}]}
