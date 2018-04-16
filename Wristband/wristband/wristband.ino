@@ -23,6 +23,14 @@ const int motorPin = 8;
 const int buttonPin = 13; // temporary choice for testing
 
 
+// BUTTON VARIABLES:
+int buttonState;             // the current reading from the input pin
+int lastButtonState = LOW;   // the previous reading from the input pin
+// the following variables are unsigned longs because the time, measured in
+// milliseconds, will quickly become a bigger number than can be stored in an int.
+unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
+
 void setup() {
   // initialize and clear display
   display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
@@ -61,11 +69,21 @@ void print_d(String text){
 void loop() {
   // put your main code here, to run repeatedly:
 
-  // need to debounce this somehow
+  // BUTTON CODE: Comments at https://www.arduino.cc/en/Tutorial/Debounce
   // if button pressed, tell the phone to get a photo and recognize
-  if(digitalRead(buttonPin) == HIGH){
-    Serial.println(RECOGNIZE_REQUEST);
-  }
+  int reading = digitalRead(buttonPin);
+  if (reading != lastButtonState) 
+    lastDebounceTime = millis();
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (reading != buttonState) {
+      buttonState = reading;
+      if (buttonState == HIGH)
+         Serial.println(RECOGNIZE_REQUEST);
+    }
+  }  
+  lastButtonState = reading;
+
+
 
   // Do something when a newline arrives:
   if (stringComplete) {
