@@ -555,8 +555,7 @@ void camInit(void){
 }
 
 void arduinoUnoInut(void) {
-    /* Tim: Disabling cli() because I used Arduino's Serial library for reading. Need to handle interrupts f */
-//  cli();//disable interrupts
+ cli();//disable interrupts
   
 //    /* Setup the 8mhz PWM clock
 //  * This will be on pin 11*/
@@ -593,6 +592,9 @@ void arduinoUnoInut(void) {
 //  UCSR0A |= 2;//double speed aysnc
 //  UCSR0B = (1 << RXEN0) | (1 << TXEN0);//Enable receiver and transmitter
 //  UCSR0C = 6;//async 1 stop bit 8bit char no parity bits
+
+     /* Tim: Disabling cli() because I usedArduino's Serial library for reading. Need to handle interrupts f */
+  sei();
 }
 
 
@@ -606,39 +608,54 @@ void StringPgm(const char * str){
 
 /* Modified by Tim to drop the resolution by 1/16 due to an unresolved bug preventing the bluetooth 
    setup from consistenly handling chunks greater than 10,000 bytes.
+    Further modified to use buffering to succesfully output the image at 115,200 baud.
+    Wrapped in cli sei in order to use the Arduino Serial library. Interrupts would disrupt this.
  */
 static void captureImg(uint16_t wg, uint16_t hg){
 
   cli();
-  
-//  Serial.write("attempting image capture\n");
-  uint16_t y, x;
 
+  uint16_t y, x;
+  uint8_t buf[80]; // transmitting 1/4 of the lines, so use the other 3 to transmit?
+  uint8_t*b=buf,*b2=buf;
+
+  uint16_t pclk_count;
+  
   StringPgm(PSTR("*RDY*"));
 
+  // VSYNC falling edge.
   while (!(PIND & 8));//wait for high
   while ((PIND & 8));//wait for low
 
-    y = hg;
-  while (y--){
-        x = wg;
-      //while (!(PIND & 256));//wait for high
-    while (x--){
-      while ((PIND & 4));//wait for low
-          if( (x%4==0) && (y%4==0) ){
-            UDR0 = (PINC & 15) | (PIND & 240);
-//              Serial.println(x);
-//              Serial.println(y);
-            while (!(UCSR0A & (1 << UDRE0)));//wait for byte to transmit
-          }
-      while (!(PIND & 4));//wait for high
-      while ((PIND & 4));//wait for low
-      while (!(PIND & 4));//wait for high
-    }
-    //  while ((PIND & 256));//wait for low
-  }
-    _delay_ms(100);
-
+  y = hg;
+  while (y){
+      // HREF rising edge, new line has begun.
+      while ((PINB & 1));//wait for low
+      while (!(PINB & 1));//wait for high
+      while ((PINB & 1));//wait for low
+      while (!(PINB & 1));//wait for high
+    // testing showed that writing 80 bytes to the serial line at 115,200 baud only takes 2 lines, so we wait ro return to the 1/4 line we want to read.
+      x = wg;
+      pclk_count = 0; // reset to 0 before the transmit lines happen.
+      b = buf; // get start of buffer to store
+      while (x--){
+        while ((PIND & 4));//wait for low
+            if( (x%4==0) ){ // store 1/4 of the pixels this line.
+                *b= (PINC & 15) | (PIND & 240);
+                b++;
+            }
+        while (!(PIND & 4));//wait for high
+        while ((PIND & 4));//wait for low
+        while (!(PIND & 4));//wait for high    
+      }
+      b = buf; // get start of buffer to transmit       
+      x = wg/4;
+      while(x--){
+          while (!(UCSR0A & (1 << UDRE0)));//wait for byte to transmit
+            UDR0 = *b;
+              b++;}
+      y = y -4;
+      } 
     sei();
 }
 
@@ -653,8 +670,8 @@ void setup(){
   /* Tim's code */
   // reserve 200 bytes for the inputString:
   fromPhone.reserve(200);
-  Serial.begin(1000000);
-//  Serial.begin(115200); // interestingly, switching to 115,200 means that you can NOT use Serial.print without cli. Otherwise the cli code can execute in the middle of a Serial.print, with the print finishing after sei. Random splitting of words etc.
+  // Serial.begin(1000000);
+ Serial.begin(115200); // interestingly, switching to 115,200 means that you can NOT use Serial.print without cli. Otherwise the cli code can execute in the middle of a Serial.print, with the print finishing after sei. Random splitting of words etc.
 }
 
 
