@@ -9,8 +9,8 @@ import time
 from PIL import Image
 import os
 
-ser = serial.Serial('COM4', 1000000, timeout=None)  # open serial port
-# ser = serial.Serial('COM4', 115200, timeout=None)  # open serial port
+# ser = serial.Serial('COM4', 1000000, timeout=None)  # open serial port
+ser = serial.Serial('COM4', 115200, timeout=None)  # open serial port
 print(ser.name)         # check which port was really used
 # ser.write(b'hello')     # write a string
 
@@ -94,7 +94,7 @@ print(ser.name)         # check which port was really used
 # was incrementing byte_itx too early, so it could never find the string. now fixed.
 # image = ser.read(8 * 320*240 + 500) # 500 is an arbitrary amount for the other random stuff being sent
 # image = ser.read(38900) # 500 is an arbitrary amount for the other random stuff being sent 8 * 320*240/16  + 500
-image = ser.read(30000) # a little over 6 80 by 60 images.
+image = ser.read(90000) # a little over 6 80 by 60 images.
 print("serial read finished")
 # print("image is", len(image))
 
@@ -107,8 +107,8 @@ print(len(image))
 
 with open("image","wb") as image_file: # open in binary mode.
     image_file.write(image)
-image_start_itx = [0,0,0,0,0,0,0,0,0,0,0,0]
-for image_itx in range(5):
+image_start_itx = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+for image_itx in range(12):
     while byte_itx <  len(image) :
         # print(byte_itx)
         char = image[byte_itx]

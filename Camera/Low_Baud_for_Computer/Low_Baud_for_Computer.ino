@@ -557,7 +557,7 @@ void arduinoUnoInut(void) {
   TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS10); // more modes, so need to also set 3rd wgm bit.
   OCR1A = 0;//(F_CPU)/(2*(X+1))
 
-  
+  // to be safe should force HREF PB0 to low?
   DDRC &= ~15;//low d0-d3 camera
   DDRD &= ~252;//d7-d4 and interrupt pins
   _delay_ms(3000);
@@ -598,12 +598,19 @@ static void captureImg(uint16_t wg, uint16_t hg){
   while ((PIND & 8));//wait for low
 
     y = hg;
-  while (y--){
+  while (y){ //(y--){
+      // HREF rising edge, new line has begun.
+      while ((PINB & 1));//wait for low
+      while (!(PINB & 1));//wait for high
+      while ((PINB & 1));//wait for low
+      while (!(PINB & 1));//wait for high
+    // testing showed that writing 80 bytes to the serial line at 115,200 baud only takes 2 lines, so we wait ro return to the 1/4 line we want to read.
+    
           x = wg;
         //while (!(PIND & 256));//wait for high
   
         // a line to store
-        if( (y%4==0) ){
+//        if( (y%4==0) ){        
           pclk_count = 0; // reset to 0 before the transmit lines happen.
           b = buf; // get start of buffer to store
           while (x--){
@@ -619,26 +626,24 @@ static void captureImg(uint16_t wg, uint16_t hg){
             while (!(PIND & 4));//wait for high    
           }
           //  while ((PIND & 256));//wait for low
-        }
-        // one of the 3 lines for transmitting
-        else{
-          if(pclk_count == 0) b = buf; // get start of buffer to transmit
+//        }
 
-          
-            while (x--){
-              while ((PIND & 4));//wait for low
-              
-              if(pclk_count %20 == 0 && pclk_count < 1600){   // every 20 pclks, write a byte.        
+        // one of the 3 lines for transmitting
+//        else{
+          b = buf; // get start of buffer to transmit       
+          x = wg/4;
+          while(x--){
+             while (!(UCSR0A & (1 << UDRE0)));//wait for byte to transmit
                 UDR0 = *b;
                  b++;}
-              pclk_count++;
-              while (!(PIND & 4));//wait for high
-              while ((PIND & 4));//wait for low
-              pclk_count++;
-              while (!(PIND & 4));//wait for high    
-              }
-          }
-        }
+                 
+//                y = y-2; // by the time we finish transmitting these pixels, 3 lines have probably passed. 
+//           
+          y = y -4;
+            } 
+
+          
+        
       
   
     _delay_ms(100);
@@ -661,8 +666,8 @@ void setup(){
 
 
 
-  Serial.begin(1000000);
-//  Serial.begin(115200); // interestingly, switching to 115,200 means that you can NOT use Serial.print without cli. Otherwise the cli code can execute in the middle of a Serial.print, with the print finishing after sei. Random splitting of words etc.
+//  Serial.begin(1000000);
+  Serial.begin(115200); // interestingly, switching to 115,200 means that you can NOT use Serial.print without cli. Otherwise the cli code can execute in the middle of a Serial.print, with the print finishing after sei. Random splitting of words etc.
 
 
 }
