@@ -1,0 +1,87 @@
+done using 
+                String fromWristband; String tmp;
+                BufferedReader in = new BufferedReader(new InputStreamReader(mmInStream),200000);
+//             Keep listening to the InputStream until an exception occurs.
+                    while (true) {
+                        try {
+                            Log.d(TAG_WRISTBAND, "Attempting to read");
+
+                            tmp=in.readLine();
+//                            Log.d(TAG_WRISTBAND, fromWristband);
+                            long startTime = System.nanoTime();
+                            fromWristband = in.readLine();
+                            long endTime = System.nanoTime();
+                            Log.d(TAG_WRISTBAND, String.valueOf(startTime));
+                            Log.d(TAG_WRISTBAND, String.valueOf(endTime));
+                            Log.d(TAG_WRISTBAND, "Line length of: " + String.valueOf(tmp.length()));
+                            Log.d(TAG_WRISTBAND, "Line length of: " + String.valueOf(fromWristband.length()));
+
+on the android side 
+
+
+
+      if (buttonState == HIGH){
+        Serial.print("*RDY*\n");
+//        Serial.print("*RDY*\n");
+        for(int i = 0;i < 30000; i++)
+          Serial.print("a");
+        Serial.print("\n");
+        Serial.print("b");
+      }
+on the arduino side.
+
+04-18 16:19:04.677 29659-30069/com.timothychia.faces D/Wristband Tag: Attempting to read
+04-18 16:19:57.001 29659-30069/com.timothychia.faces D/Wristband Tag: 481181570122471
+04-18 16:19:57.003 29659-30069/com.timothychia.faces D/Wristband Tag: 481184045322783
+04-18 16:19:57.004 29659-30069/com.timothychia.faces D/Wristband Tag: Line length of: 5
+    Line length of: 30000
+    Attempting to read
+04-18 16:20:06.533 29659-30069/com.timothychia.faces D/Wristband Tag: 481191076294499
+    481193577274446
+    Line length of: 6
+    Line length of: 30000
+    Attempting to read
+04-18 16:20:21.580 29659-30069/com.timothychia.faces D/Wristband Tag: 481206197081993
+    481208624296888
+04-18 16:20:21.581 29659-30069/com.timothychia.faces D/Wristband Tag: Line length of: 6
+    Line length of: 30000
+    Attempting to read
+04-18 16:20:30.974 29659-30069/com.timothychia.faces D/Wristband Tag: 481215681689333
+    481218018404801
+    Line length of: 6
+    Line length of: 30000
+04-18 16:20:30.975 29659-30069/com.timothychia.faces D/Wristband Tag: Attempting to read
+04-18 16:20:42.036 29659-30069/com.timothychia.faces D/Wristband Tag: 481226558835006
+04-18 16:20:42.037 29659-30069/com.timothychia.faces D/Wristband Tag: 481229080845995
+    Line length of: 6
+    Line length of: 30000
+    Attempting to read
+04-18 16:20:50.170 29659-30069/com.timothychia.faces D/Wristband Tag: 481234687131722
+04-18 16:20:50.171 29659-30069/com.timothychia.faces D/Wristband Tag: 481237215195888
+    Line length of: 6
+    Line length of: 30000
+    Attempting to read
+04-18 16:21:01.384 29659-30069/com.timothychia.faces D/Wristband Tag: 481245953636666
+04-18 16:21:01.385 29659-30069/com.timothychia.faces D/Wristband Tag: 481248429181508
+    Line length of: 6
+    Line length of: 30000
+    Attempting to read
+04-18 16:21:09.347 29659-30069/com.timothychia.faces D/Wristband Tag: 481253808473433
+04-18 16:21:09.348 29659-30069/com.timothychia.faces D/Wristband Tag: 481256391405307
+    Line length of: 6
+    Line length of: 30000
+    Attempting to read
+04-18 16:21:17.197 29659-30069/com.timothychia.faces D/Wristband Tag: 481261684617701
+    481264240420981
+    Line length of: 6
+    Line length of: 30000
+    Attempting to read
+04-18 16:21:44.072 29659-30069/com.timothychia.faces D/Wristband Tag: 481288581564462
+04-18 16:21:44.073 29659-30069/com.timothychia.faces D/Wristband Tag: 481291117113367
+    Line length of: 6
+    Line length of: 30000
+    Attempting to read
+04-18 16:21:53.001 29659-30069/com.timothychia.faces D/Wristband Tag: 481297563598417
+    481300045173989
+    Line length of: 6
+    Line length of: 30000

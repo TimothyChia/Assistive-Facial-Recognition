@@ -566,12 +566,12 @@ void arduinoUnoInut(void) {
   TWSR &= ~3;//disable prescaler for TWI
   TWBR = 72;//set to 100khz
   
-    //enable serial
-  UBRR0H = 0;
-  UBRR0L = 1;//0 = 2M baud rate. 1 = 1M baud. 3 = 0.5M. 7 = 250k 207 is 9600 baud rate.
-  UCSR0A |= 2;//double speed aysnc
-  UCSR0B = (1 << RXEN0) | (1 << TXEN0);//Enable receiver and transmitter
-  UCSR0C = 6;//async 1 stop bit 8bit char no parity bits
+//    //enable serial
+//  UBRR0H = 0;
+//  UBRR0L = 1;//0 = 2M baud rate. 1 = 1M baud. 3 = 0.5M. 7 = 250k 207 is 9600 baud rate.
+//  UCSR0A |= 2;//double speed aysnc
+//  UCSR0B = (1 << RXEN0) | (1 << TXEN0);//Enable receiver and transmitter
+//  UCSR0C = 6;//async 1 stop bit 8bit char no parity bits
 }
 
 
@@ -586,28 +586,61 @@ void StringPgm(const char * str){
 static void captureImg(uint16_t wg, uint16_t hg){
 //  Serial.write("attempting image capture\n");
   uint16_t y, x;
+  uint8_t buf[80]; // transmitting 1/4 of the lines, so use the other 3 to transmit?
+  uint8_t*b=buf,*b2=buf;
 
+  uint16_t pclk_count;
+  
   StringPgm(PSTR("*RDY*"));
 
+  // VSYNC falling edge.
   while (!(PIND & 8));//wait for high
   while ((PIND & 8));//wait for low
 
     y = hg;
   while (y--){
-        x = wg;
-      //while (!(PIND & 256));//wait for high
-    while (x--){
-      while ((PIND & 4));//wait for low
-//          if( (x%4==0) && (y%4==0) ){
-            UDR0 = (PINC & 15) | (PIND & 240);
-            while (!(UCSR0A & (1 << UDRE0)));//wait for byte to transmit
-//          }
-      while (!(PIND & 4));//wait for high
-      while ((PIND & 4));//wait for low
-      while (!(PIND & 4));//wait for high
-    }
-    //  while ((PIND & 256));//wait for low
-  }
+          x = wg;
+        //while (!(PIND & 256));//wait for high
+  
+        // a line to store
+        if( (y%4==0) ){
+          pclk_count = 0; // reset to 0 before the transmit lines happen.
+          b = buf; // get start of buffer to store
+          while (x--){
+            while ((PIND & 4));//wait for low
+                if( (x%4==0) ){ // store 1/4 of the pixels this line.
+      //            UDR0 = (PINC & 15) | (PIND & 240);
+      //            while (!(UCSR0A & (1 << UDRE0)));//wait for byte to transmit
+                    *b= (PINC & 15) | (PIND & 240);
+                    b++;
+                }
+            while (!(PIND & 4));//wait for high
+            while ((PIND & 4));//wait for low
+            while (!(PIND & 4));//wait for high    
+          }
+          //  while ((PIND & 256));//wait for low
+        }
+        // one of the 3 lines for transmitting
+        else{
+          if(pclk_count == 0) b = buf; // get start of buffer to transmit
+
+          
+            while (x--){
+              while ((PIND & 4));//wait for low
+              
+              if(pclk_count %20 == 0 && pclk_count < 1600){   // every 20 pclks, write a byte.        
+                UDR0 = *b;
+                 b++;}
+              pclk_count++;
+              while (!(PIND & 4));//wait for high
+              while ((PIND & 4));//wait for low
+              pclk_count++;
+              while (!(PIND & 4));//wait for high    
+              }
+          }
+        }
+      
+  
     _delay_ms(100);
 }
 
@@ -626,6 +659,10 @@ void setup(){
 //  wrReg(0x11, 12); //Earlier it had the value: wrReg(0x11, 13); New version works better for me :) !!!!
   wrReg(0x11, 11); // for our module, use 11. everything from 10 to 20 seems to work except 12.
 
+
+
+  Serial.begin(1000000);
+//  Serial.begin(115200); // interestingly, switching to 115,200 means that you can NOT use Serial.print without cli. Otherwise the cli code can execute in the middle of a Serial.print, with the print finishing after sei. Random splitting of words etc.
 
 
 }

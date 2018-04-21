@@ -12,6 +12,7 @@ Adafruit_SSD1306 display(-1);
 #endif
 
 // using String objects. see Arduino reference.
+// you DO need the newline, since char by char appends the newline to the fromPhone object.
 String MATCH_FOUND = "Match Found\n";
 String NO_MATCH = "No Match\n";
 String RECOGNIZE_REQUEST = "Recognize Request\n";
@@ -19,7 +20,7 @@ String RECOGNIZE_REQUEST = "Recognize Request\n";
 
 String fromPhone = "";         // a String to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
-const int motorPin = 8;
+const int motorPin = 9;
 const int buttonPin = 13; // temporary choice for testing
 
 
@@ -40,7 +41,13 @@ void setup() {
   print_d("Display Initialized!");
 
 
-  Serial.begin(9600);
+//  Serial.begin(9600);
+//  Serial.begin(1382400); // make sure to setup the HC 05 for this baud rate.
+//  Serial.begin(460800);
+Serial.begin(115200);
+
+//  Serial.begin(921600);
+//  Serial.println("Serial initialized at 1382400");
   // reserve 200 bytes for the inputString:
   fromPhone.reserve(200);
 
@@ -87,10 +94,11 @@ void loop() {
 
   // Do something when a newline arrives:
   if (stringComplete) {
-//    Serial.println(fromPhone);
+    Serial.println(fromPhone);
 
     
     if(fromPhone.equals(MATCH_FOUND)){
+      Serial.print("vibrating");
       vibrate();
     }
     if(fromPhone.equals(NO_MATCH)){

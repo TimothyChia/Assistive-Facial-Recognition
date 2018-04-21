@@ -1,8 +1,11 @@
+// A driver for the camera module for the ECE 445 FACES project written by Timothy Chia 4/20/2018 
 //
+// Heavily based on source from:
 // Source code for application to transmit image from ov7670 to PC via USB
 // By Siarhei Charkes in 2015
 // http://privateblog.info 
-//
+// Which was based on code from https://github.com/ComputerNerd/ov7670-no-ram-arduino-uno
+// and that code contains options for multiple resolutions. This implementation runs at 320 x 240.
 
 #include <stdint.h>
 #include <avr/io.h>
@@ -282,6 +285,20 @@
 #define AWBCTR1           0x6e  /* AWB Control 1 */
 #define AWBCTR0           0x6f  /* AWB Control 0 */
 
+/* Section added by Tim 4/20/2018 */
+// using String objects. see Arduino reference.
+// you DO need the newline, since char by char appends the newline to the fromPhone object.
+String TAKE_PHOTO = "Take Photo\n";
+// String NO_MATCH = "No Match\n";
+// String RECOGNIZE_REQUEST = "Recognize Request\n";
+      
+
+String fromPhone = "";         // a String to hold incoming data
+boolean stringComplete = false;  // whether the string is complete
+
+/* End of Tim's additions. */
+
+
 struct regval_list{
   uint8_t reg_num;
   uint16_t value;
@@ -538,7 +555,8 @@ void camInit(void){
 }
 
 void arduinoUnoInut(void) {
-  cli();//disable interrupts
+    /* Tim: Disabling cli() because I used Arduino's Serial library for reading. Need to handle interrupts f */
+//  cli();//disable interrupts
   
 //    /* Setup the 8mhz PWM clock
 //  * This will be on pin 11*/
@@ -565,13 +583,16 @@ void arduinoUnoInut(void) {
     //set up twi for 100khz
   TWSR &= ~3;//disable prescaler for TWI
   TWBR = 72;//set to 100khz
-  
-    //enable serial
-  UBRR0H = 0;
-  UBRR0L = 1;//0 = 2M baud rate. 1 = 1M baud. 3 = 0.5M. 7 = 250k 207 is 9600 baud rate.
-  UCSR0A |= 2;//double speed aysnc
-  UCSR0B = (1 << RXEN0) | (1 << TXEN0);//Enable receiver and transmitter
-  UCSR0C = 6;//async 1 stop bit 8bit char no parity bits
+
+
+    /* Tim: Disabling this serial code because I used Arduino's Serial library for reading. Need to call Serial.begin anyway to 
+       initialize the interrupt handlers. */
+//    //enable serial
+//  UBRR0H = 0;
+//  UBRR0L = 1;//0 = 2M baud rate. 1 = 1M baud. 3 = 0.5M. 7 = 250k 207 is 9600 baud rate.
+//  UCSR0A |= 2;//double speed aysnc
+//  UCSR0B = (1 << RXEN0) | (1 << TXEN0);//Enable receiver and transmitter
+//  UCSR0C = 6;//async 1 stop bit 8bit char no parity bits
 }
 
 
@@ -583,7 +604,13 @@ void StringPgm(const char * str){
   } while (pgm_read_byte_near(++str));
 }
 
+/* Modified by Tim to drop the resolution by 1/16 due to an unresolved bug preventing the bluetooth 
+   setup from consistenly handling chunks greater than 10,000 bytes.
+ */
 static void captureImg(uint16_t wg, uint16_t hg){
+
+  cli();
+  
 //  Serial.write("attempting image capture\n");
   uint16_t y, x;
 
@@ -598,10 +625,12 @@ static void captureImg(uint16_t wg, uint16_t hg){
       //while (!(PIND & 256));//wait for high
     while (x--){
       while ((PIND & 4));//wait for low
-//          if( (x%4==0) && (y%4==0) ){
+          if( (x%4==0) && (y%4==0) ){
             UDR0 = (PINC & 15) | (PIND & 240);
+//              Serial.println(x);
+//              Serial.println(y);
             while (!(UCSR0A & (1 << UDRE0)));//wait for byte to transmit
-//          }
+          }
       while (!(PIND & 4));//wait for high
       while ((PIND & 4));//wait for low
       while (!(PIND & 4));//wait for high
@@ -609,38 +638,76 @@ static void captureImg(uint16_t wg, uint16_t hg){
     //  while ((PIND & 256));//wait for low
   }
     _delay_ms(100);
+
+    sei();
 }
 
 void setup(){
   int i;
   arduinoUnoInut();
-//  Serial.begin(1000000); //not needed, just checking if their serial code is correct.
-  for(i=0;i<5;i++)
-//    Serial.write("arduino init complete\n");
-  //    StringPgm(PSTR("arduino init testing\n")); //this seems to work properly, unlike Serial.write()
-
-//running any of these functions seems to prevent it from serial printing the "executing loop" or "RDY" message
   camInit();
   setRes();
   setColor();
-//  wrReg(0x11, 12); //Earlier it had the value: wrReg(0x11, 13); New version works better for me :) !!!!
   wrReg(0x11, 11); // for our module, use 11. everything from 10 to 20 seems to work except 12.
 
-
-
+  /* Tim's code */
+  // reserve 200 bytes for the inputString:
+  fromPhone.reserve(200);
+  Serial.begin(1000000);
+//  Serial.begin(115200); // interestingly, switching to 115,200 means that you can NOT use Serial.print without cli. Otherwise the cli code can execute in the middle of a Serial.print, with the print finishing after sei. Random splitting of words etc.
 }
 
 
 void loop(){
-//  Serial.write("executing main loop\n");
-//  StringPgm(PSTR("executing loop"));
-  int i;
-//  for(i=0;i<20;i++)
-//  {
-//   StringPgm(PSTR("testing value"));
-//   wrReg(0x11, i);
-   captureImg(320, 240);
-//  }
-  
+//  serialEvent();
+//    StringPgm(PSTR("executing loop\n"));
+//  Serial.println("testing Serial.println\n");
 
+
+  // Do something when a newline arrives:
+  if (stringComplete) {
+//    Serial.println(fromPhone);
+
+    
+    if(fromPhone.equals(TAKE_PHOTO)){
+//      Serial.print("taking photo");
+      captureImg(320, 240);
+    }
+    // if(fromPhone.equals(NO_MATCH)){
+    //   vibrate();
+    //   delay(1000);
+    //   vibrate();
+    // }
+    // for now, assumes the only other possibility is a name to be displayed.
+    // else{
+          // print_d(fromPhone);
+    // }    
+    // clear the string:
+    fromPhone = "";
+    stringComplete = false;
+  }
+}
+
+/*
+  SerialEvent occurs whenever a new data comes in the hardware serial RX. This
+  routine is run between each time loop() runs, so using delay inside loop can
+  delay response. Multiple bytes of data may be available.
+  fromPhone will have the newline as the last char.
+*/
+void serialEvent() {
+//        Serial.println("serialEvent");
+
+  while (Serial.available()) {
+//      Serial.println("available");
+
+    // get the new byte:
+    char inChar = (char)Serial.read();
+    // add it to the inputString:
+    fromPhone += inChar;
+    // if the incoming character is a newline, set a flag so the main loop can
+    // do something about it:
+    if (inChar == '\n') {
+      stringComplete = true;
+    }
+  }
 }

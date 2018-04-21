@@ -10,6 +10,7 @@ from PIL import Image
 import os
 
 ser = serial.Serial('COM4', 1000000, timeout=None)  # open serial port
+# ser = serial.Serial('COM4', 115200, timeout=None)  # open serial port
 print(ser.name)         # check which port was really used
 # ser.write(b'hello')     # write a string
 
@@ -91,16 +92,25 @@ print(ser.name)         # check which port was really used
 
 ## Final version hopefully
 # was incrementing byte_itx too early, so it could never find the string. now fixed.
-image = ser.read(8 * 320*240 + 500) # 500 is an arbitrary amount for the other random stuff being sent
+# image = ser.read(8 * 320*240 + 500) # 500 is an arbitrary amount for the other random stuff being sent
+# image = ser.read(38900) # 500 is an arbitrary amount for the other random stuff being sent 8 * 320*240/16  + 500
+image = ser.read(30000) # a little over 6 80 by 60 images.
+print("serial read finished")
+# print("image is", len(image))
+
 separator = "*RDY*"
 byte_itx= 0
-size = (320,240)
+# size = (320,240)
+size = (80,60)
+
+print(len(image))
 
 with open("image","wb") as image_file: # open in binary mode.
     image_file.write(image)
 image_start_itx = [0,0,0,0,0,0,0,0,0,0,0,0]
-for image_itx in range(7):
-    for _ in range( len(image) ):
+for image_itx in range(5):
+    while byte_itx <  len(image) :
+        # print(byte_itx)
         char = image[byte_itx]
         if( char == ord(separator[0]) ):
             # print("found a candidate at",byte_itx)
@@ -113,10 +123,13 @@ for image_itx in range(7):
                 image[byte_itx+4] == ord(separator[4])   ):
                 
                 print("found a separator",byte_itx)
+                byte_itx += 5 # forgot this earlier. skip the *RDY* now that it's been found.                
+                
                 image_start_itx[image_itx] = byte_itx
-                image_frame = image[byte_itx:byte_itx+320*240]                
+                # image_frame = image[byte_itx:byte_itx+320*240]                
+                image_frame = image[byte_itx:byte_itx+80*60]                
                 path = os.path.join( 'converted'+str(image_itx)+'.jpg' ) 
-                converted = Image.frombytes("L", size,image_frame )
+                converted = Image.frombytes("L", size,image_frame ) # decoder = raw by default.
                 converted.save(path)
                 print(image_start_itx)        
                 print(byte_itx)
