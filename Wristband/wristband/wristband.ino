@@ -41,10 +41,10 @@ void setup() {
   print_d("Display Initialized!");
 
 
-//  Serial.begin(9600);
+  Serial.begin(9600);
 //  Serial.begin(1382400); // make sure to setup the HC 05 for this baud rate.
 //  Serial.begin(460800);
-Serial.begin(115200);
+//Serial.begin(115200);
 
 //  Serial.begin(921600);
 //  Serial.println("Serial initialized at 1382400");
