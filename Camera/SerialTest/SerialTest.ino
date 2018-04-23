@@ -13,8 +13,8 @@ boolean stringComplete = false;  // whether the string is complete
 
 void setup(){
 // Open serial connection.
-Serial.begin(1000000);
- 
+//Serial.begin(1000000);
+ Serial.begin(115200);
 }
  
 void loop(){
@@ -23,7 +23,7 @@ void loop(){
 
 
   while (Serial.available()) {
-      Serial.println("available");
+//      Serial.println("available");
 
     // get the new byte:
     char inChar = (char)Serial.read();
